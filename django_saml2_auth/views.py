@@ -111,6 +111,10 @@ def _get_saml_client(domain):
     if 'NAME_ID_FORMAT' in settings.SAML2_AUTH:
         saml_settings['service']['sp']['name_id_format'] = settings.SAML2_AUTH['NAME_ID_FORMAT']
 
+    if 'WANT_ASSERTIONS_SIGNED' in settings.SAML2_AUTH:
+        saml_settings['service']['sp']['want_assertions_signed']: settings.SAML2_AUTH.get('WANT_ASSERTIONS_SIGNED', True)
+    
+
     spConfig = Saml2Config()
     spConfig.load(saml_settings)
     spConfig.allow_unknown_attributes = True
