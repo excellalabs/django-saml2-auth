@@ -123,11 +123,13 @@ def welcome(r):
     try:
         return render(r, 'django_saml2_auth/welcome.html', {'user': r.user})
     except TemplateDoesNotExist:
+        print("Login Denied", return render(r, 'django_saml2_auth/welcome.html', {'user': r.user}))
         return HttpResponseRedirect(settings.SAML2_AUTH.get('DEFAULT_NEXT_URL', get_reverse('admin:index')))
 
 
 def denied(r):
     return render(r, 'django_saml2_auth/denied.html')
+  
 
 
 def _create_new_user(username, email, firstname, lastname):
@@ -153,16 +155,22 @@ def acs(r):
     next_url = r.session.get('login_next_url', settings.SAML2_AUTH.get('DEFAULT_NEXT_URL', get_reverse('admin:index')))
 
     if not resp:
+        print("reverse deny", resp)
         return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
+       
 
     authn_response = saml_client.parse_authn_request_response(
         resp, entity.BINDING_HTTP_POST)
     if authn_response is None:
+        print("auth response deny", authn_response)
         return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
+        
 
     user_identity = authn_response.get_identity()
     if user_identity is None:
+        print("user_identity deny", user_identity)
         return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
+       
 
     if not user_identity:
         subject_name_id = settings.SAML2_AUTH.get('SUBJECT_NAMEID_MAPPING', 'email')
@@ -190,6 +198,7 @@ def acs(r):
                 import_string(settings.SAML2_AUTH['TRIGGER']['CREATE_USER'])(user_identity)
             is_new_user = True
         else:
+            print("user deny", target_user)
             return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
 
     r.session.flush()
@@ -236,7 +245,9 @@ def signin(r):
 
     # Only permit signin requests where the next_url is a safe URL
     if not is_safe_url(next_url, None):
+        print("not safe deny", return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied'])) )
         return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
+        
 
     r.session['login_next_url'] = next_url
 
