@@ -123,7 +123,7 @@ def welcome(r):
     try:
         return render(r, 'django_saml2_auth/welcome.html', {'user': r.user})
     except TemplateDoesNotExist:
-        print("Login Denied", return render(r, 'django_saml2_auth/welcome.html', {'user': r.user}))
+        print("Login Denied", render(r, 'django_saml2_auth/welcome.html', {'user': r.user}))
         return HttpResponseRedirect(settings.SAML2_AUTH.get('DEFAULT_NEXT_URL', get_reverse('admin:index')))
 
 
@@ -245,7 +245,7 @@ def signin(r):
 
     # Only permit signin requests where the next_url is a safe URL
     if not is_safe_url(next_url, None):
-        print("not safe deny", return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied'])) )
+        print("not safe deny", HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied'])) )
         return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
         
 
